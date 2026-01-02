@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models.manga import Manga, Chapter
@@ -32,3 +33,9 @@ async def create_chapter(db: AsyncSession, manga_id: str, chapter_in: ChapterCre
     await db.commit()
     await db.refresh(db_chapter)
     return db_chapter
+
+
+async def get_chapter(db: AsyncSession, chapter_id: uuid.UUID) -> Chapter | None:
+    stmt = select(Chapter).where(Chapter.id == chapter_id)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()

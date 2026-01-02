@@ -1,9 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
 from app.core.database import engine
 
 # Импортируем наш новый роутер
 from app.api.v1.endpoints import auth, users, manga
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -28,3 +29,5 @@ app.include_router(manga.router, prefix="/api/v1/manga", tags=["Manga"])
 @app.get("/")
 async def root():
     return {"message": "Welcome to Manga Reader API"}
+
+

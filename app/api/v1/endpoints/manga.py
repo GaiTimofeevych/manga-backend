@@ -7,6 +7,7 @@ from app.api.deps import get_current_active_user
 from app.schemas.manga import MangaCreate, MangaResponse, MangaDetail, ChapterCreate, ChapterResponse
 from app.services import manga_service
 from app.models.user import User
+from app.schemas.manga import ChapterDetail
 
 router = APIRouter()
 
@@ -63,3 +64,20 @@ async def add_chapter(
     Добавить главу к манге.
     """
     return await manga_service.create_chapter(db=db, manga_id=manga_id, chapter_in=chapter_in)
+
+
+@router.get("/chapters/{chapter_id}", response_model=ChapterDetail)
+async def read_chapter(
+    chapter_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    # В будущем сюда добавим current_user для проверки подписки
+):
+    """
+    Получить содержимое главы (страницы).
+    Именно здесь будет проверка прав доступа (Paywall).
+    """
+    chapter = await manga_service.get_chapter(db=db, chapter_id=chapter_id)
+    if not chapter:
+        raise HTTPException(status_code=404, detail="Chapter not found")
+    
+    return chapter
