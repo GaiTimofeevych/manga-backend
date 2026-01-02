@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from app.core.database import engine
 
 # Импортируем наш новый роутер
-from app.api.v1.endpoints import auth 
+from app.api.v1.endpoints import auth, users, manga
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,6 +22,8 @@ app = FastAPI(
 # Подключаем роуты
 # prefix="/api/v1/auth" означает, что адрес будет http://.../api/v1/auth/register
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
+app.include_router(users.router, prefix="/api/v1/users", tags=["Users"]) # <--- Добавили эту строку
+app.include_router(manga.router, prefix="/api/v1/manga", tags=["Manga"])
 
 @app.get("/")
 async def root():
