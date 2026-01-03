@@ -67,3 +67,22 @@ async def get_current_active_user(
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+
+async def get_current_user_optional(
+    token: Annotated[str | None, Depends(reusable_oauth2)] = None, # Токен может быть None
+    db: Annotated[AsyncSession, Depends(get_db)] = None,
+) -> User | None:
+    """
+    Пытается получить пользователя, но НЕ вызывает ошибку, если токена нет.
+    Возвращает User или None.
+    """
+    if not token:
+        return None
+    
+    try:
+        # Пытаемся использовать логику из get_current_user
+        return await get_current_user(token, db)
+    except HTTPException:
+        # Если токен невалиден или протух — считаем, что юзера нет (гость)
+        return None
