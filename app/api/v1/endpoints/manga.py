@@ -1,6 +1,7 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi_cache.decorator import cache
 
 from app.core.database import get_db
 from app.api.deps import get_current_active_user
@@ -29,6 +30,7 @@ async def create_manga(
     return await manga_service.create_manga(db=db, manga_in=manga_in)
 
 @router.get("/", response_model=list[MangaResponse])
+@cache(expire=60)  # <--- Кэшируем ответ на 60 секунд
 async def read_mangas(
     skip: int = 0,
     limit: int = 10,
@@ -40,6 +42,7 @@ async def read_mangas(
     return await manga_service.get_mangas(db=db, skip=skip, limit=limit)
 
 @router.get("/{slug}", response_model=MangaDetail)
+@cache(expire=60)  # <--- Кэшируем детали манги
 async def read_manga_detail(
     slug: str,
     db: AsyncSession = Depends(get_db)

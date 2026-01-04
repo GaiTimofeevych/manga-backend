@@ -1,4 +1,20 @@
 services:
+    # Наше Python приложение
+  backend:
+    build: .
+    container_name: manga_backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    # Важно: приложение должно ждать, пока запустятся БД и Redis
+    depends_on:
+      - db
+      - redis
+    # Для Linux/Docker: чтобы внутри контейнера localhost указывал на другие сервисы
+    # Но лучше использовать имена сервисов в .env (см. шаг 3)
+
   db:
     image: postgres:15-alpine
     container_name: manga_db
@@ -11,6 +27,14 @@ services:
       - "127.0.0.1:5454:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: manga_redis
+    ports:
+      - "6379:6379" # Стандартный порт
+    restart: always
+
 
 volumes:
   postgres_data:

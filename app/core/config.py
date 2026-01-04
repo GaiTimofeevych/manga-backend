@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     POSTGRES_SERVER: str
     POSTGRES_PORT: int
     POSTGRES_DB: str
+    
+    REDIS_URL: str = "redis://localhost:6379"
 
     # Секретный ключ для JWT токенов (сгенерируем позже, пока заглушка)
     SECRET_KEY: str = "super-secret-key-change-me-in-prod"

@@ -1,7 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
 from app.core.database import engine
-
+from redis import asyncio as aioredis
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from app.core.config import settings
 # Импортируем наш новый роутер
 from app.api.v1.endpoints import auth, users, manga
 
@@ -9,10 +12,17 @@ from app.api.v1.endpoints import auth, users, manga
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("🚀 Starting up...")
+
+     # 1. Подключаемся к Redis
+    redis = aioredis.from_url(settings.REDIS_URL, encoding="utf8", decode_responses=True)
+    FastAPICache.init(RedisBackend(redis), prefix="manga-cache")
+    print("✅ Redis cache initialized")
+    
     # Тут можно добавить проверку БД, если хочешь, как было раньше
     yield
     print("🛑 Shutting down...")
     await engine.dispose()
+    await redis.close() # Закрываем соединение
 
 app = FastAPI(
     title="Manga Reader API",
