@@ -1,5 +1,6 @@
 from fastapi.staticfiles import StaticFiles
 import os
+from fastapi.middleware.cors import CORSMiddleware # <--- 1. ИМПОРТ
 from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
 from app.core.database import engine
@@ -9,6 +10,7 @@ from fastapi_cache.backends.redis import RedisBackend
 from app.core.config import settings
 # Импортируем наш новый роутер
 from app.api.v1.endpoints import auth, users, manga, utils
+
 
 
 @asynccontextmanager
@@ -31,6 +33,22 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan
 )
+
+# --- 2. ВСТАВЬ ЭТОТ БЛОК ---
+# Разрешаем запросы с локального фронтенда (порт 3000)
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Разрешаем GET, POST, PUT, DELETE
+    allow_headers=["*"],
+)
+# ---------------------------
 
 # --- STATIC FILES ---
 # Создаем папку, если её нет (на всякий случай)
