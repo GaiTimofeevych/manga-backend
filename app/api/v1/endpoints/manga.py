@@ -4,13 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_cache.decorator import cache
 
 from app.core.database import get_db
-from app.api.deps import get_current_active_user
+from app.api.deps import get_current_active_user, get_current_user_optional, get_current_admin
 from app.schemas.manga import MangaCreate, MangaResponse, MangaDetail, ChapterCreate, ChapterResponse
-from app.services import manga_service
+from app.services import manga_service, subscription_service
 from app.models.user import User
 from app.schemas.manga import ChapterDetail
-from app.services import subscription_service
-from app.api.deps import get_current_user_optional
+
 
 router = APIRouter()
 
@@ -20,7 +19,8 @@ router = APIRouter()
 async def create_manga(
     manga_in: MangaCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user) # Только для авторизованных
+    current_user: User = Depends(get_current_admin)
+    # current_user: User = Depends(get_current_active_user) # Только для авторизованных
 ):
     """
     Создать новую мангу.
@@ -63,7 +63,8 @@ async def add_chapter(
     manga_id: uuid.UUID,
     chapter_in: ChapterCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_admin)
+    # current_user: User = Depends(get_current_active_user)
 ):
     """
     Добавить главу к манге.

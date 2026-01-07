@@ -86,3 +86,17 @@ async def get_current_user_optional(
     except HTTPException:
         # Если токен невалиден или протух — считаем, что юзера нет (гость)
         return None
+    
+async def get_current_admin(
+    current_user: User = Depends(get_current_active_user),
+) -> User:
+    """
+    Проверяет, что текущий пользователь — админ.
+    Если нет — кидает 403 Forbidden.
+    """
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The user doesn't have enough privileges"
+        )
+    return current_user

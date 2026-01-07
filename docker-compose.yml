@@ -14,6 +14,9 @@ services:
       - redis
     # Для Linux/Docker: чтобы внутри контейнера localhost указывал на другие сервисы
     # Но лучше использовать имена сервисов в .env (см. шаг 3)
+    volumes:
+      - ./app:/app/app       # (Опционально) Чтобы код обновлялся без пересборки
+      - ./media:/app/media   # <--- ГЛАВНОЕ: Папка media на хосте = /app/media в контейнере
 
   db:
     image: postgres:15-alpine
